@@ -3,22 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register | Astara Game</title>
+  <title>Register | FANTASY+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; background: #0f0f0f; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    .register-box { background: #1a1a1a; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
-    input { width: 90%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; }
-    button { background: #00ff88; color: #000; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; }
-    h2 { margin-bottom: 20px; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: #111;
+      padding: 30px 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 0 20px rgba(0, 255, 200, 0.1);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #00ffc8;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #222;
+      color: white;
+    }
+    input:focus {
+      outline: 2px solid #00ffc8;
+    }
+    button {
+      background: #00ffc8;
+      color: #000;
+      padding: 12px;
+      width: 100%;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .link {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    .link a {
+      color: #00ffc8;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
-  <div class="register-box">
+  <div class="container">
     <h2>Create Account</h2>
-    <input type="text" id="mobile" placeholder="Mobile Number (e.g. 03123456789)" /><br />
-    <input type="password" id="password" placeholder="Password" /><br />
+    <input type="text" id="mobile" placeholder="Mobile Number (e.g. 03123456789)" />
+    <input type="password" id="password" placeholder="Password" />
     <button onclick="register()">Register</button>
-    <p>Already have an account? <a href="login.html" style="color:#0ff;">Login here</a></p>
+    <div class="link">
+      Already have an account? <a href="login.html">Login here</a>
+    </div>
   </div>
 
   <script type="module">
@@ -43,11 +99,11 @@
     function register() {
       const mobile = document.getElementById("mobile").value;
       const password = document.getElementById("password").value;
-
-      if (!mobile || !password) return alert("Please fill all fields");
-
-      const fakeEmail = mobile + "@astaragame.com";
-
+      if (!mobile || !password) {
+        alert("Please fill in all fields");
+        return;
+      }
+      const fakeEmail = mobile + "@fantasyplus.com";
       createUserWithEmailAndPassword(auth, fakeEmail, password)
         .then((userCredential) => {
           const uid = userCredential.user.uid;
