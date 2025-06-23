@@ -1,183 +1,101 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html><html lang="ur">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Color Prediction Game</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>[x-cloak]{display:none}</style>
+  <title>Astara Color Game</title>
+  <style>
+    body { margin: 0; background: #111; color: #fff; font-family: sans-serif; text-align: center; }
+    header { background: #222; padding: 15px; font-size: 24px; font-weight: bold; }
+    .mode-select { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .mode-btn { background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    .mode-btn.active { background: #0f0; color: #000; }
+    .game-section { margin-top: 20px; }
+    .colors, .numbers { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .btn { padding: 15px 25px; font-size: 18px; border-radius: 10px; border: none; cursor: pointer; }
+    .red { background: red; }
+    .green { background: green; }
+    .violet { background: purple; }
+    .number { background: #444; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .timer { font-size: 24px; margin-top: 15px; }
+    .result { font-size: 26px; margin-top: 20px; color: #0f0; }
+    .section { padding: 30px 20px; border-top: 1px solid #333; }
+    .nav a { margin: 10px; color: #0ff; text-decoration: none; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-900" x-data="game()" x-init="init()" x-cloak>  <!-- Header -->  <header class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-4 text-center text-xl font-bold">
-    🎯 Color Prediction Game
-  </header>  <!-- Balance and Actions -->  <div class="p-4">
-    <div class="bg-white rounded-xl shadow p-4 mb-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <p class="text-sm text-gray-600">Wallet Balance</p>
-          <p class="text-2xl font-bold">Rs <span x-text="coins"></span></p>
-        </div>
-        <div class="space-x-2">
-          <button class="bg-green-600 text-white px-4 py-1 rounded" @click="openDeposit()">Deposit</button>
-          <button class="bg-red-500 text-white px-4 py-1 rounded" @click="withdraw()">Withdraw</button>
-        </div>
-      </div>
-    </div><!-- Game Modes -->
-<div class="flex space-x-2 overflow-x-auto mb-4">
-  <template x-for="m in modes" :key="m.sec">
-    <button @click="setMode(m)" :class="mode.sec===m.sec ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800'" class="px-3 py-1 rounded-full text-sm font-medium"> <span x-text="m.label"></span> </button>
-  </template>
-</div>
+<body><header>🎯 Astara Color Prediction Game</header><div class="mode-select">
+  <button class="mode-btn" onclick="setMode(30)">30s</button>
+  <button class="mode-btn" onclick="setMode(60)">1 min</button>
+  <button class="mode-btn" onclick="setMode(180)">3 min</button>
+  <button class="mode-btn" onclick="setMode(300)">5 min</button>
+</div><div class="timer">⏳ وقت باقی: <span id="countdown">30</span> سیکنڈ</div><div class="colors">
+  <button class="btn red">🔴 Red</button>
+  <button class="btn green">🟢 Green</button>
+  <button class="btn violet">🟣 Violet</button>
+</div><div class="numbers">
+  <div class="number">0</div>
+  <div class="number">1</div>
+  <div class="number">2</div>
+  <div class="number">3</div>
+  <div class="number">4</div>
+  <div class="number">5</div>
+  <div class="number">6</div>
+  <div class="number">7</div>
+  <div class="number">8</div>
+  <div class="number">9</div>
+</div><div class="result" id="result">🔄 رزلٹ کا انتظار ہو رہا ہے...</div><div class="nav">
+  <a href="#deposit">💰 Deposit</a>
+  <a href="#withdraw">💸 Withdraw</a>
+</div><div id="deposit" class="section">
+  <h2>💰 Deposit</h2>
+  <p>JazzCash: <strong>03165355105</strong></p>
+  <p>EasyPaisa: <strong>033319535871</strong></p>
+  <p>رقم بھیجنے کے بعد Transaction ID درج کریں</p>
+</div><div id="withdraw" class="section">
+  <h2>💸 Withdraw</h2>
+  <p>اپنا JazzCash / EasyPaisa نمبر اور رقم درج کریں</p>
+  <p>واٹس ایپ پر رابطہ کریں: <strong>0316-5355105</strong></p>
+</div><script>
+  let timeLeft = 30;
+  let interval;
 
-<!-- Timer -->
-<div class="text-center text-lg font-semibold mb-3">⏳ Time Left: <span x-text="timeStr"></span></div>
+  const countdownEl = document.getElementById('countdown');
+  const resultEl = document.getElementById('result');
+  const modeBtns = document.querySelectorAll('.mode-btn');
 
-<!-- Color Tabs -->
-<div class="grid grid-cols-3 gap-2 mb-4 text-center font-semibold">
-  <button class="bg-green-100 rounded py-2" @click="choose('color','green')">Green</button>
-  <button class="bg-purple-200 rounded py-2" @click="choose('color','violet')">Violet</button>
-  <button class="bg-red-100 rounded py-2" @click="choose('color','red')">Red</button>
-</div>
-
-<!-- Numbers -->
-<div class="grid grid-cols-5 gap-3 mb-4">
-  <template x-for="n in 10" :key="n">
-    <button class="rounded-full text-white font-bold aspect-square flex items-center justify-center shadow ring-2" :class="n < 5 ? 'bg-green-500 ring-green-700' : 'bg-red-500 ring-red-700'" @click="choose('number',n)"><span x-text="n"></span></button>
-  </template>
-</div>
-
-<!-- Big/Small -->
-<div class="grid grid-cols-2 gap-2 mb-4">
-  <button class="bg-gray-200 py-2 rounded" @click="choose('size','small')">Small (0–4)</button>
-  <button class="bg-gray-300 py-2 rounded" @click="choose('size','big')">Big (5–9)</button>
-</div>
-
-<!-- Bet Panel -->
-<div class="bg-white p-4 rounded-xl shadow">
-  <p class="text-sm mb-1">Your Bet: <span class="font-bold" x-text="betLabel"></span></p>
-  <input type="number" x-model.number="stake" class="w-full border px-3 py-2 rounded mb-3" placeholder="Enter amount (Rs)" />
-  <button class="w-full bg-green-600 text-white py-2 rounded font-semibold" @click="placeBet">Place Bet</button>
-</div>
-
-  </div>  <!-- Deposit Modal -->  <div x-show="showDeposit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-5 rounded-xl w-[90%] max-w-md">
-      <h2 class="text-lg font-semibold mb-3">Deposit via</h2>
-      <div class="space-y-3">
-        <div class="border rounded p-3 flex justify-between items-center">
-          <div>
-            <p class="text-sm font-medium">EasyPaisa</p>
-            <p class="text-sm text-gray-600">03319535871</p>
-          </div>
-          <button class="text-xs text-blue-600" @click="copyToClipboard('03319535871')">📋 Copy</button>
-        </div>
-        <div class="border rounded p-3 flex justify-between items-center">
-          <div>
-            <p class="text-sm font-medium">JazzCash</p>
-            <p class="text-sm text-gray-600">03159676813</p>
-          </div>
-          <button class="text-xs text-blue-600" @click="copyToClipboard('03159676813')">📋 Copy</button>
-        </div>
-      </div>
-      <div class="mt-4">
-        <label class="text-sm">Enter Transaction ID</label>
-        <input type="text" x-model="txnId" placeholder="e.g. TXP1234567" class="w-full border rounded px-3 py-2 mt-1" />
-        <button @click="submitTxn" class="mt-3 w-full bg-green-600 text-white py-2 rounded font-semibold">Submit</button>
-        <button class="mt-2 text-sm text-red-500" @click="showDeposit = false">Cancel</button>
-      </div>
-    </div>
-  </div><script>
-function game() {
-  return {
-    coins: 100,
-    stake: 10,
-    modes: [
-      { label: '30 sec', sec: 30 },
-      { label: '1 min', sec: 60 },
-      { label: '3 min', sec: 180 },
-      { label: '5 min', sec: 300 },
-    ],
-    mode: { label: '30 sec', sec: 30 },
-    timer: 30,
-    timeStr: '00:30',
-    bet: { type: null, value: null },
-    currentBet: null,
-    showDeposit: false,
-    txnId: '',
-
-    init() {
-      setInterval(() => {
-        if (this.timer > 0) {
-          this.timer--;
-          this.timeStr = this.fmt(this.timer);
-        } else {
-          this.resolve();
-        }
-      }, 1000);
-    },
-
-    fmt(s) {
-      const m = Math.floor(s / 60), sec = s % 60;
-      return (m ? String(m).padStart(2, '0') : '00') + ':' + String(sec).padStart(2, '0');
-    },
-
-    setMode(m) {
-      this.mode = m;
-      this.timer = m.sec;
-    },
-
-    choose(t, v) {
-      this.bet = { type: t, value: v };
-    },
-
-    betLabel() {
-      if (!this.bet.type) return '—';
-      return this.bet.type === 'number' ? `Number ${this.bet.value}` : this.bet.value.toUpperCase();
-    },
-
-    placeBet() {
-      if (!this.bet.type || !this.stake || this.stake > this.coins) return alert('Invalid bet');
-      this.coins -= this.stake;
-      this.currentBet = { ...this.bet, stake: this.stake };
-      alert('Bet Placed');
-    },
-
-    resolve() {
-      const res = Math.floor(Math.random() * 10);
-      const color = [0, 2, 4, 6, 8].includes(res) ? 'green' : 'red';
-      const vio = [0, 5].includes(res);
-      const size = res < 5 ? 'small' : 'big';
-      let win = 0;
-      if (this.currentBet) {
-        const { type, value, stake } = this.currentBet;
-        if (type === 'number' && value === res) win = stake * 9;
-        else if (type === 'color' && value === color) win = stake * 1.9;
-        else if (type === 'color' && value === 'violet' && vio) win = stake * 4;
-        else if (type === 'size' && value === size) win = stake * 2;
-      }
-      this.coins += win;
-      alert(`Result: ${res} (${color}${vio ? '/violet' : ''})\nWin: Rs ${win}`);
-      this.timer = this.mode.sec;
-      this.bet = { type: null, value: null };
-      this.currentBet = null;
-    },
-
-    openDeposit() {
-      this.showDeposit = true;
-    },
-
-    copyToClipboard(text) {
-      navigator.clipboard.writeText(text);
-      alert('Number copied!');
-    },
-
-    submitTxn() {
-      if (!this.txnId) return alert('Please enter Transaction ID');
-      const ref = localStorage.getItem('ref_by') || 'direct';
-      const msg = `New Deposit Request:\nTxn: ${this.txnId}\nRef: ${ref}`;
-      alert(msg); // You can send this to Telegram or Email via external tool
-      this.txnId = '';
-      this.showDeposit = false;
-    }
+  function setMode(seconds) {
+    clearInterval(interval);
+    timeLeft = seconds;
+    countdownEl.textContent = timeLeft;
+    modeBtns.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    startCountdown();
   }
-}
+
+  function startCountdown() {
+    interval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft;
+      if (timeLeft === 0) {
+        clearInterval(interval);
+        showResult();
+        setTimeout(() => {
+          timeLeft = parseInt(document.querySelector('.mode-btn.active')?.textContent || 30);
+          countdownEl.textContent = timeLeft;
+          resultEl.textContent = '🔄 نیا راؤنڈ شروع ہو رہا ہے...';
+          startCountdown();
+        }, 5000);
+      }
+    }, 1000);
+  }
+
+  function showResult() {
+    const colors = ['🔴 Red', '🟢 Green', '🟣 Violet'];
+    const random = Math.floor(Math.random() * colors.length);
+    resultEl.textContent = `🎉 نتیجہ: ${colors[random]}`;
+  }
+
+  // Start default 30s countdown
+  document.querySelectorAll('.mode-btn')[0].classList.add('active');
+  startCountdown();
 </script></body>
 </html>
