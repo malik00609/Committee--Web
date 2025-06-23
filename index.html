@@ -1,101 +1,70 @@
-<!DOCTYPE html><html lang="ur">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Astara Color Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | Astara Game</title>
   <style>
-    body { margin: 0; background: #111; color: #fff; font-family: sans-serif; text-align: center; }
-    header { background: #222; padding: 15px; font-size: 24px; font-weight: bold; }
-    .mode-select { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-    .mode-btn { background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-    .mode-btn.active { background: #0f0; color: #000; }
-    .game-section { margin-top: 20px; }
-    .colors, .numbers { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-    .btn { padding: 15px 25px; font-size: 18px; border-radius: 10px; border: none; cursor: pointer; }
-    .red { background: red; }
-    .green { background: green; }
-    .violet { background: purple; }
-    .number { background: #444; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-    .timer { font-size: 24px; margin-top: 15px; }
-    .result { font-size: 26px; margin-top: 20px; color: #0f0; }
-    .section { padding: 30px 20px; border-top: 1px solid #333; }
-    .nav a { margin: 10px; color: #0ff; text-decoration: none; }
+    body { font-family: sans-serif; background: #0f0f0f; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .register-box { background: #1a1a1a; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0,255,255,0.2); }
+    input { width: 90%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; }
+    button { background: #00ff88; color: #000; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; }
+    h2 { margin-bottom: 20px; }
   </style>
 </head>
-<body><header>🎯 Astara Color Prediction Game</header><div class="mode-select">
-  <button class="mode-btn" onclick="setMode(30)">30s</button>
-  <button class="mode-btn" onclick="setMode(60)">1 min</button>
-  <button class="mode-btn" onclick="setMode(180)">3 min</button>
-  <button class="mode-btn" onclick="setMode(300)">5 min</button>
-</div><div class="timer">⏳ وقت باقی: <span id="countdown">30</span> سیکنڈ</div><div class="colors">
-  <button class="btn red">🔴 Red</button>
-  <button class="btn green">🟢 Green</button>
-  <button class="btn violet">🟣 Violet</button>
-</div><div class="numbers">
-  <div class="number">0</div>
-  <div class="number">1</div>
-  <div class="number">2</div>
-  <div class="number">3</div>
-  <div class="number">4</div>
-  <div class="number">5</div>
-  <div class="number">6</div>
-  <div class="number">7</div>
-  <div class="number">8</div>
-  <div class="number">9</div>
-</div><div class="result" id="result">🔄 رزلٹ کا انتظار ہو رہا ہے...</div><div class="nav">
-  <a href="#deposit">💰 Deposit</a>
-  <a href="#withdraw">💸 Withdraw</a>
-</div><div id="deposit" class="section">
-  <h2>💰 Deposit</h2>
-  <p>JazzCash: <strong>03165355105</strong></p>
-  <p>EasyPaisa: <strong>033319535871</strong></p>
-  <p>رقم بھیجنے کے بعد Transaction ID درج کریں</p>
-</div><div id="withdraw" class="section">
-  <h2>💸 Withdraw</h2>
-  <p>اپنا JazzCash / EasyPaisa نمبر اور رقم درج کریں</p>
-  <p>واٹس ایپ پر رابطہ کریں: <strong>0316-5355105</strong></p>
-</div><script>
-  let timeLeft = 30;
-  let interval;
+<body>
+  <div class="register-box">
+    <h2>Create Account</h2>
+    <input type="text" id="mobile" placeholder="Mobile Number (e.g. 03123456789)" /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
+    <button onclick="register()">Register</button>
+    <p>Already have an account? <a href="login.html" style="color:#0ff;">Login here</a></p>
+  </div>
 
-  const countdownEl = document.getElementById('countdown');
-  const resultEl = document.getElementById('result');
-  const modeBtns = document.querySelectorAll('.mode-btn');
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  function setMode(seconds) {
-    clearInterval(interval);
-    timeLeft = seconds;
-    countdownEl.textContent = timeLeft;
-    modeBtns.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    startCountdown();
-  }
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "YOUR_APP_ID",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com"
+    };
 
-  function startCountdown() {
-    interval = setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft;
-      if (timeLeft === 0) {
-        clearInterval(interval);
-        showResult();
-        setTimeout(() => {
-          timeLeft = parseInt(document.querySelector('.mode-btn.active')?.textContent || 30);
-          countdownEl.textContent = timeLeft;
-          resultEl.textContent = '🔄 نیا راؤنڈ شروع ہو رہا ہے...';
-          startCountdown();
-        }, 5000);
-      }
-    }, 1000);
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-  function showResult() {
-    const colors = ['🔴 Red', '🟢 Green', '🟣 Violet'];
-    const random = Math.floor(Math.random() * colors.length);
-    resultEl.textContent = `🎉 نتیجہ: ${colors[random]}`;
-  }
+    function register() {
+      const mobile = document.getElementById("mobile").value;
+      const password = document.getElementById("password").value;
 
-  // Start default 30s countdown
-  document.querySelectorAll('.mode-btn')[0].classList.add('active');
-  startCountdown();
-</script></body>
+      if (!mobile || !password) return alert("Please fill all fields");
+
+      const fakeEmail = mobile + "@astaragame.com";
+
+      createUserWithEmailAndPassword(auth, fakeEmail, password)
+        .then((userCredential) => {
+          const uid = userCredential.user.uid;
+          set(ref(db, 'users/' + uid), {
+            mobile: mobile,
+            wallet: 0,
+            role: "user"
+          });
+          alert("Registration successful!");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    }
+
+    window.register = register;
+  </script>
+</body>
 </html>
