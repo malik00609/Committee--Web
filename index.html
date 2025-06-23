@@ -1,166 +1,202 @@
-<!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<!--
+  Color Prediction / Aviator web‑game – single‑file template
+  Author: <your name here>
+  How to use:
+    1. Open https://glitch.com → New Project → "Hello‑Webpage" (or "Blank Website")
+    2. Replace the default index.html with this file’s contents.
+    3. Press "Show" → "In a New Window" – you now have a live link to share.
+
+  ⚠️  This is a *front‑end* prototype only.
+      – Random results are generated in the browser (for demo).
+      – Deposit / Withdraw buttons open a modal; connect your own backend
+        (e.g. Firebase Functions, Supabase, or custom API) to integrate
+        Easypaisa or JazzCash.
+      – For production you’ll need secure server‑side logic & database.
+
+  Built with:
+      ▸ Tailwind 3 via CDN (utility‑first CSS)
+      ▸ Alpine.js 3 (tiny, reactive JavaScript) – zero build‑step
+      ▸ Heroicons (SVG icons)
+
+  Sections
+      1. Global styles & helper classes
+      2. Header   – brand, deposit/withdraw, wallet balance
+      3. Banner   – Lucky 10 Days promo (placeholder image)
+      4. Category carousel – All | Lottery | Aviator (only Aviator kept alive)
+      5. Game list – shows Aviator only
+      6. Wingo panel – 30 sec colour prediction (Green / Violet / Red + numbers)
+      7. Bottom nav bar – Home / Activity / Promotion / Wallet / Account
+      8. JS logic – countdown timer, random result demo, coin system stub
+--><!DOCTYPE html><html lang="en" x-data="game()" x-init="init()" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <title>کمیٹی ڈیش بورڈ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+  <title>Fantasy Gems – Color Prediction</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Noto Nastaliq Urdu', serif;
-      background: #f4f9ff;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #0056b3;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-    }
-    .container {
-      padding: 30px;
-      max-width: 1000px;
-      margin: auto;
-    }
-    .summary-boxes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 30px;
-      justify-content: center;
-    }
-    .box {
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 20px;
-      flex: 1 1 200px;
-      border-top: 4px solid #198754;
-      text-align: center;
-    }
-    .box h3 {
-      margin: 0;
-      font-size: 24px;
-      color: #198754;
-    }
-    .box p {
-      font-size: 18px;
-      margin-top: 10px;
-      color: #444;
-    }
-    h2 {
-      text-align: center;
-      color: #0a58ca;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    th, td {
-      padding: 14px 20px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
-    thead {
-      background-color: #198754;
-      color: white;
-    }
-    .status-paid {
-      color: green;
-    }
-    .status-pending {
-      color: red;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 14px;
-      color: #666;
-    }
-    .contact-box {
-      margin-top: 40px;
-      text-align: center;
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .community-box {
-      background: #e0f7fa;
-      border: 1px solid #00bcd4;
-      padding: 15px;
-      margin-top: 30px;
-      border-radius: 10px;
-    }
+    body{font-family:Inter,system-ui,Helvetica,Arial,sans-serif}
+    /* hide number input spin‑buttons (mobile) */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button{display:none}
   </style>
 </head>
-<body>
-  <header>
-    💼 کمیٹی ڈیش بورڈ
-  </header>
-  <div class="container">
-    <div class="summary-boxes">
-      <div class="box">
-        <h3>100</h3>
-        <p>کل ممبران</p>
+<body class="bg-gray-100 text-gray-800" x-cloak>
+  <!-- ╔══════════ HEADER ══════════╗ -->
+  <header class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 flex items-center justify-between shadow-md">
+    <div class="flex items-center space-x-2">
+      <!-- back btn placeholder -->
+      <button class="p-2 rounded-full hover:bg-white/10" @click="alert('Implement navigation')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <h1 class="text-lg font-semibold tracking-wide">Fantasy Gems</h1>
+    </div>
+    <div class="flex items-center space-x-3">
+      <div class="text-xs text-right">
+        <p class="leading-none opacity-75">Balance</p>
+        <p class="font-semibold">Rs <span x-text="coins.toFixed(2)"></span></p>
       </div>
-      <div class="box">
-        <h3>33</h3>
-        <p>کمیٹیاں فی مہینہ</p>
-      </div>
-      <div class="box">
-        <h3>1,00,000</h3>
-        <p>فی ممبر کمیٹی رقم (روپے)</p>
-      </div>
-      <div class="box">
-        <h3>1 تاریخ</h3>
-        <p>اگلی کمیٹی کی تاریخ</p>
+      <!-- wallet icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m0-4h3m-3 0l-3 3m3-3l-3-3" />
+      </svg>
+    </div>
+  </header>  <!-- ╔══════════ BANNER ══════════╗ -->  <section class="p-4">
+    <img src="https://placehold.co/600x200/16a34a/ffffff?text=Lucky+10+Days+of+Interest" alt="Lucky 10 Days" class="rounded-2xl shadow-lg w-full object-cover">
+  </section>  <!-- ╔══════════ CATEGORIES ══════════╗ -->  <nav class="px-4 overflow-x-auto whitespace-nowrap pb-3">
+    <button class="catBtn" :class="{active:category==='all'}" @click="category='all'">All</button>
+    <button class="catBtn" :class="{active:category==='aviator'}" @click="category='aviator'">Aviator</button>
+    <button class="catBtn opacity-40" disabled>Lottery</button>
+    <button class="catBtn opacity-40" disabled>Fishing</button>
+    <button class="catBtn opacity-40" disabled>Slots</button>
+  </nav>  <!-- ╔══════════ GAME LIST ══════════╗ -->  <section class="px-4" x-show="category==='all' || category==='aviator'">
+    <h2 class="text-base font-semibold mb-2">Featured</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <!-- Aviator card -->
+      <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-3 flex flex-col" @click="openAviator()">
+        <img src="https://placehold.co/300x140/991b1b/ffffff?text=AVIATOR" alt="Aviator" class="rounded-lg object-cover h-24 w-full">
+        <p class="mt-2 text-center font-medium">Aviator</p>
       </div>
     </div>
-
-    <div class="community-box">
-      <h3>🎉 36 لوگوں نے کمیونٹی جوائن کی ہے!</h3>
-    </div>
-
-    <h2>👥 ممبران کی تفصیل</h2>
-    <table>
-      <thead>
-        <td>Contact WhatsApp</td>
-        </tr>
-        <!-- مزید ممبرز یہاں شامل کریں -->
-      </tbody>
-    </table>
-
-    <div class="contact-box">
-      <h3>📞 رابطہ کی معلومات</h3>
-      <p><strong>JazzCash:</strong> 03159676813</p>
-      <p><strong>EasyPaisa:</strong> 03319535871</p>
-      <p><strong>WhatsApp:</strong> 03165355105</p>
-    </div>
-
-    <div class="footer">
-      © 2025 Malik Waliullah Committee System - Powered by Trust
-    </div>
-  </div>
-</body>
-</html>
-<div class="contact-box">
-  <h3>📞 رابطہ کی معلومات</h3>
-  <p><strong>JazzCash:</strong> 03159676813</p>
-  <p><strong>EasyPaisa:</strong> 03319535871</p>
-  <p><strong>WhatsApp:</strong> 
-    <a href="https://wa.me/923165355105" target="_blank" style="color: green; font-weight: bold;">
-      03165355105 پر WhatsApp کریں
-    </a>
-  </p>
-  <p style="margin-top:15px; font-size:16px;">
-    جو بندہ کمیونٹی جوائن کرے گا، برائے مہربانی EasyPaisa یا JazzCash پر رقم بھیج کر 
-    <strong>اپنی CNIC AnD Live VIDEO prof (اسکرین شاٹ یا ثبوت)</strong> WhatsApp پر ہمیں ضرور بھیج دے۔
-  </p>
+  </section>  <!-- ╔══════════ WINGO COLOR GAME ══════════╗ -->  <section class="bg-white mt-6 rounded-t-3xl shadow-inner p-4" id="wingo">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold text-lg">Wingo 30 sec</h2>
+      <div class="text-sm text-gray-600">
+        Time remaining:
+        <span class="font-semibold" x-text="timeStr"></span>
+      </div>
+    </div><!-- color tabs -->
+<div class="grid grid-cols-3 gap-2 mb-4 text-center text-sm font-medium">
+  <button class="tab" :class="{sel:winTab==='green'}" @click="winTab='green'">Green</button>
+  <button class="tab" :class="{sel:winTab==='violet'}" @click="winTab='violet'">Violet</button>
+  <button class="tab" :class="{sel:winTab==='red'}" @click="winTab='red'">Red</button>
 </div>
+
+<!-- number grid -->
+<div class="grid grid-cols-5 gap-2">
+  <template x-for="n in 10" :key="n">
+    <button class="numBall" :class="ballClass(n-1)" @click="selectNumber(n-1)">
+      <span x-text="n-1"></span>
+    </button>
+  </template>
+</div>
+
+<!-- bet panel -->
+<div class="mt-5 bg-gray-50 p-4 rounded-xl shadow-inner">
+  <p class="text-sm mb-2">Your Number: <span class="font-semibold" x-text="selectedNum!==null?selectedNum:'—'"></span></p>
+  <label class="block text-sm mb-1">Stake (coins):</label>
+  <input type="number" min="1" x-model.number="stake" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring" placeholder="e.g. 10">
+  <button class="w-full mt-3 bg-emerald-500 text-white py-2 rounded-xl font-semibold shadow-lg hover:bg-emerald-600 active:scale-95 transition" @click="placeBet()">Place Bet</button>
+</div>
+
+  </section>  <!-- ╔══════════ BOTTOM NAV ══════════╗ -->  <nav class="fixed bottom-0 inset-x-0 bg-white border-t shadow z-50">
+    <div class="flex justify-around py-2 text-xs font-medium">
+      <div class="navItem active">Home</div>
+      <div class="navItem">Activity</div>
+      <div class="navItem">Promotion</div>
+      <div class="navItem">Wallet</div>
+      <div class="navItem">Account</div>
+    </div>
+  </nav>  <!-- ╔══════════ MODALS (Deposit/Withdraw placeholders) ══════════╗ -->  <template x-if="modal==='wallet'">
+    <div class="fixed inset-0 bg-black/40 flex items-end" @click.self="modal=''"><!-- bg overlay -->
+      <div class="bg-white w-full rounded-t-2xl p-6 space-y-4">
+        <h3 class="font-semibold text-lg">Wallet – Deposit / Withdraw</h3>
+        <p class="text-sm text-gray-600">Integrate Easypaisa / JazzCash in your backend.<br>Here we only display placeholders.</p>
+        <button class="btnGreen" @click="alert('Implement Deposit')">Deposit</button>
+        <button class="btnRed" @click="alert('Implement Withdraw')">Withdraw</button>
+        <button class="w-full text-center text-gray-500 mt-2" @click="modal=''">Close</button>
+      </div>
+    </div>
+  </template><script>
+function game(){
+  return {
+    /* ==== STATE ==== */
+    coins: 100.00,
+    category: 'all',
+    modal: '',
+    /* wingo */
+    timer: 30,
+    timeStr: '00:30',
+    winTab: 'green',
+    selectedNum: null,
+    stake: 10,
+
+    /* ==== METHODS ==== */
+    init(){
+      /* countdown */
+      setInterval(()=>{
+        if(this.timer>0){this.timer--;}
+        else{this.resolveRound();this.timer=30;}
+        this.timeStr = '00:'+String(this.timer).padStart(2,'0');
+      },1000);
+    },
+    ballClass(n){
+      const color = [0,2,4,6,8].includes(n)?'green':'red';
+      return color==='green'?'bg-green-100 text-green-700':'bg-red-100 text-red-700';
+    },
+    selectNumber(n){this.selectedNum=n;},
+    placeBet(){
+      if(this.selectedNum===null){alert('Select a number first');return;}
+      if(this.stake<=0 || isNaN(this.stake)){alert('Enter valid stake');return;}
+      if(this.stake>this.coins){alert('Not enough coins');return;}
+      /* store bet – simple client array in demo */
+      this.coins-=this.stake;
+      this.currentBet={num:this.selectedNum,stake:this.stake};
+      alert('Bet placed! Wait for result…');
+    },
+    resolveRound(){
+      const result=Math.floor(Math.random()*10);
+      const color=[0,2,4,6,8].includes(result)?'green':'red';
+      const isViolet=[0,5].includes(result);
+      let win=0;
+      if(this.currentBet && this.currentBet.num===result){
+        win=this.currentBet.stake*9; // 9x payout for exact number
+      }else if(this.currentBet && this.winTab===color){
+        win=this.currentBet.stake*1.9; // color payout
+      }
+      this.coins+=win;
+      alert(`Result: ${result} (${color}${isViolet?' / violet':''})\nYou won Rs ${win.toFixed(2)}`);
+      /* reset */
+      this.selectedNum=null;
+      this.currentBet=null;
+    },
+    openAviator(){alert('Embed Aviator iframe or redirect to aviator.html');}
+  }
+}
+</script><!-- ╔═══════ LITTLE STYLES (tailwind variant shortcuts) ═══════╗ --><style>
+  .catBtn{ @apply inline-block px-4 py-1 rounded-full bg-gray-200 text-sm font-medium mr-2; }
+  .catBtn.active{ @apply bg-emerald-500 text-white; }
+  .tab{ @apply py-2 rounded-lg bg-gray-100; }
+  .tab.sel{ @apply bg-emerald-500 text-white; }
+  .numBall{ @apply w-full aspect-square flex items-center justify-center rounded-full text-lg font-semibold shadow; }
+  .btnGreen{ @apply w-full bg-emerald-500 text-white py-2 rounded-xl font-semibold shadow hover:bg-emerald-600; }
+  .btnRed{ @apply w-full bg-red-500 text-white py-2 rounded-xl font-semibold shadow hover:bg-red-600; }
+  .navItem{ @apply flex flex-col items-center space-y-1; }
+  .navItem.active{ @apply text-emerald-600 font-semibold; }
+</style></body>
+</html>
