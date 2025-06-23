@@ -1,134 +1,100 @@
-<!--
-  Color Prediction / Aviator web‑game – single‑file template
-  Author: <your name here>
-  How to use:
-    1. Open https://glitch.com → New Project → "Hello‑Webpage" (or "Blank Website")
-    2. Replace the default index.html with this file’s contents.
-    3. Press "Show" → "In a New Window" – you now have a live link to share.
+<!--  
+  Big/Small Color Prediction Game – single‑file template (no Aviator)
+  Author: <your name here>
 
-  ⚠️  This is a *front‑end* prototype only.
-      – Random results are generated in the browser (for demo).
-      – Deposit / Withdraw buttons open a modal; connect your own backend
-        (e.g. Firebase Functions, Supabase, or custom API) to integrate
-        Easypaisa or JazzCash.
-      – For production you’ll need secure server‑side logic & database.
+  How to use:
+    ▸ Host this single index.html on GitHub Pages / Glitch.
+    ▸ All logic is front‑end (demo only). Replace stub functions (deposit(), withdraw(), recordResult())
+      with calls to your backend / PayFast API when ready.
 
-  Built with:
-      ▸ Tailwind 3 via CDN (utility‑first CSS)
-      ▸ Alpine.js 3 (tiny, reactive JavaScript) – zero build‑step
-      ▸ Heroicons (SVG icons)
-
-  Sections
-      1. Global styles & helper classes
-      2. Header   – brand, deposit/withdraw, wallet balance
-      3. Banner   – Lucky 10 Days promo (placeholder image)
-      4. Category carousel – All | Lottery | Aviator (only Aviator kept alive)
-      5. Game list – shows Aviator only
-      6. Wingo panel – 30 sec colour prediction (Green / Violet / Red + numbers)
-      7. Bottom nav bar – Home / Activity / Promotion / Wallet / Account
-      8. JS logic – countdown timer, random result demo, coin system stub
+  Tech stack (no build step):
+    ▸ Tailwind 3 CDN  ▸ Alpine.js 3  ▸ Inter font  ▸ Heroicons SVGs
 --><!DOCTYPE html><html lang="en" x-data="game()" x-init="init()" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy Gems – Color Prediction</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big/Small – Color Prediction</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    body{font-family:Inter,system-ui,Helvetica,Arial,sans-serif}
-    /* hide number input spin‑buttons (mobile) */
+    body { font-family: Inter, system-ui, Helvetica, Arial, sans-serif }
     input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button{display:none}
+    input[type=number]::-webkit-outer-spin-button { display: none }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800" x-cloak>
-  <!-- ╔══════════ HEADER ══════════╗ -->
-  <header class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 flex items-center justify-between shadow-md">
+  <!-- ╔════ HEADER ════╗ -->
+  <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 flex items-center justify-between shadow-md">
     <div class="flex items-center space-x-2">
-      <!-- back btn placeholder -->
-      <button class="p-2 rounded-full hover:bg-white/10" @click="alert('Implement navigation')">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <h1 class="text-lg font-semibold tracking-wide">Fantasy Gems</h1>
+      <h1 class="text-lg font-semibold">Big / Small Game</h1>
     </div>
     <div class="flex items-center space-x-3">
       <div class="text-xs text-right">
-        <p class="leading-none opacity-75">Balance</p>
-        <p class="font-semibold">Rs <span x-text="coins.toFixed(2)"></span></p>
+        <p class="leading-none opacity-80">Balance</p>
+        <p class="font-semibold">Rs <span x-text="coins.toFixed(2)"></span></p>
       </div>
-      <!-- wallet icon -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m0-4h3m-3 0l-3 3m3-3l-3-3" />
-      </svg>
+      <button @click="modal='wallet'" class="p-2 rounded-full hover:bg-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m0-4h3m-3 0l-3 3m3-3l-3-3" />
+        </svg>
+      </button>
     </div>
-  </header>  <!-- ╔══════════ BANNER ══════════╗ -->  <section class="p-4">
-    <img src="https://placehold.co/600x200/16a34a/ffffff?text=Lucky+10+Days+of+Interest" alt="Lucky 10 Days" class="rounded-2xl shadow-lg w-full object-cover">
-  </section>  <!-- ╔══════════ CATEGORIES ══════════╗ -->  <nav class="px-4 overflow-x-auto whitespace-nowrap pb-3">
-    <button class="catBtn" :class="{active:category==='all'}" @click="category='all'">All</button>
-    <button class="catBtn" :class="{active:category==='aviator'}" @click="category='aviator'">Aviator</button>
-    <button class="catBtn opacity-40" disabled>Lottery</button>
-    <button class="catBtn opacity-40" disabled>Fishing</button>
-    <button class="catBtn opacity-40" disabled>Slots</button>
-  </nav>  <!-- ╔══════════ GAME LIST ══════════╗ -->  <section class="px-4" x-show="category==='all' || category==='aviator'">
-    <h2 class="text-base font-semibold mb-2">Featured</h2>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <!-- Aviator card -->
-      <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-3 flex flex-col" @click="openAviator()">
-        <img src="https://placehold.co/300x140/991b1b/ffffff?text=AVIATOR" alt="Aviator" class="rounded-lg object-cover h-24 w-full">
-        <p class="mt-2 text-center font-medium">Aviator</p>
-      </div>
+  </header>  <!-- ╔════ BANNER ════╗ -->  <section class="p-4">
+    <img src="https://placehold.co/600x170/059669/ffffff?text=Lucky+10+Days+of+Interest" alt="Promo" class="rounded-2xl w-full object-cover shadow" />
+  </section>  <!-- ╔════ MODE SELECT ════╗ -->  <section class="px-4 mb-4">
+    <div class="flex space-x-2 overflow-x-auto pb-1">
+      <template x-for="m in modes" :key="m.sec">
+        <button @click="setMode(m)" :class="mode.sec===m.sec?'bg-emerald-600 text-white':'bg-gray-200 text-gray-800'" class="shrink-0 px-3 py-1 rounded-full text-sm font-medium"> <span x-text="m.label"></span> </button>
+      </template>
     </div>
-  </section>  <!-- ╔══════════ WINGO COLOR GAME ══════════╗ -->  <section class="bg-white mt-6 rounded-t-3xl shadow-inner p-4" id="wingo">
+  </section>  <!-- ╔════ GAME PANEL ════╗ -->  <section class="bg-white rounded-t-3xl shadow-inner p-4" id="wingo">
     <div class="flex items-center justify-between mb-3">
-      <h2 class="font-semibold text-lg">Wingo 30 sec</h2>
-      <div class="text-sm text-gray-600">
-        Time remaining:
-        <span class="font-semibold" x-text="timeStr"></span>
-      </div>
-    </div><!-- color tabs -->
+      <h2 class="font-semibold text-lg" x-text="'Wingo '+mode.label"></h2>
+      <div class="text-sm text-gray-600">Time remaining: <span class="font-semibold" x-text="timeStr"></span></div>
+    </div><!-- Color tabs -->
 <div class="grid grid-cols-3 gap-2 mb-4 text-center text-sm font-medium">
-  <button class="tab" :class="{sel:winTab==='green'}" @click="winTab='green'">Green</button>
-  <button class="tab" :class="{sel:winTab==='violet'}" @click="winTab='violet'">Violet</button>
-  <button class="tab" :class="{sel:winTab==='red'}" @click="winTab='red'">Red</button>
+  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='green'}" @click="chooseColor('green')">Green</button>
+  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='violet'}" @click="chooseColor('violet')">Violet</button>
+  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='red'}" @click="chooseColor('red')">Red</button>
 </div>
 
-<!-- number grid -->
-<div class="grid grid-cols-5 gap-2">
+<!-- Number balls -->
+<div class="grid grid-cols-5 gap-2 mb-4">
   <template x-for="n in 10" :key="n">
-    <button class="numBall" :class="ballClass(n-1)" @click="selectNumber(n-1)">
-      <span x-text="n-1"></span>
-    </button>
+    <button class="numBall" :class="ballClass(n-1)" @click="chooseNumber(n-1)"><span x-text="n-1"></span></button>
   </template>
 </div>
 
-<!-- bet panel -->
-<div class="mt-5 bg-gray-50 p-4 rounded-xl shadow-inner">
-  <p class="text-sm mb-2">Your Number: <span class="font-semibold" x-text="selectedNum!==null?selectedNum:'—'"></span></p>
-  <label class="block text-sm mb-1">Stake (coins):</label>
-  <input type="number" min="1" x-model.number="stake" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring" placeholder="e.g. 10">
-  <button class="w-full mt-3 bg-emerald-500 text-white py-2 rounded-xl font-semibold shadow-lg hover:bg-emerald-600 active:scale-95 transition" @click="placeBet()">Place Bet</button>
+<!-- Big/Small buttons -->
+<div class="grid grid-cols-2 gap-2 mb-4 text-center text-sm font-medium">
+  <button class="tab" :class="{sel:betSelection.type==='size' && betSelection.value==='small'}" @click="chooseSize('small')">Small (0‑4)</button>
+  <button class="tab" :class="{sel:betSelection.type==='size' && betSelection.value==='big'}" @click="chooseSize('big')">Big (5‑9)</button>
 </div>
 
-  </section>  <!-- ╔══════════ BOTTOM NAV ══════════╗ -->  <nav class="fixed bottom-0 inset-x-0 bg-white border-t shadow z-50">
+<!-- Bet panel -->
+<div class="bg-gray-50 p-4 rounded-xl shadow-inner">
+  <p class="text-sm mb-1">Your Bet: <span class="font-semibold" x-text="betLabel()"></span></p>
+  <label class="block text-sm mb-1">Stake (coins):</label>
+  <input type="number" min="1" x-model.number="stake" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring" placeholder="e.g. 10" />
+  <button class="w-full mt-3 bg-emerald-600 text-white py-2 rounded-xl font-semibold shadow-lg hover:bg-emerald-700 active:scale-95 transition" @click="placeBet()">Place Bet</button>
+</div>
+
+  </section>  <!-- ╔════ BOTTOM NAV (dummy) ════╗ -->  <nav class="fixed bottom-0 inset-x-0 bg-white border-t shadow z-50">
     <div class="flex justify-around py-2 text-xs font-medium">
       <div class="navItem active">Home</div>
       <div class="navItem">Activity</div>
-      <div class="navItem">Promotion</div>
       <div class="navItem">Wallet</div>
       <div class="navItem">Account</div>
     </div>
-  </nav>  <!-- ╔══════════ MODALS (Deposit/Withdraw placeholders) ══════════╗ -->  <template x-if="modal==='wallet'">
-    <div class="fixed inset-0 bg-black/40 flex items-end" @click.self="modal=''"><!-- bg overlay -->
+  </nav>  <!-- ╔════ WALLET MODAL ════╗ -->  <template x-if="modal==='wallet'">
+    <div class="fixed inset-0 bg-black/40 flex items-end" @click.self="modal=''">
       <div class="bg-white w-full rounded-t-2xl p-6 space-y-4">
-        <h3 class="font-semibold text-lg">Wallet – Deposit / Withdraw</h3>
-        <p class="text-sm text-gray-600">Integrate Easypaisa / JazzCash in your backend.<br>Here we only display placeholders.</p>
-        <button class="btnGreen" @click="alert('Implement Deposit')">Deposit</button>
-        <button class="btnRed" @click="alert('Implement Withdraw')">Withdraw</button>
+        <h3 class="font-semibold text-lg">Wallet</h3>
+        <button class="btnGreen" @click="deposit()">Deposit (Easypaisa / JazzCash)</button>
+        <button class="btnRed" @click="withdraw()">Withdraw</button>
         <button class="w-full text-center text-gray-500 mt-2" @click="modal=''">Close</button>
       </div>
     </div>
@@ -137,56 +103,59 @@ function game(){
   return {
     /* ==== STATE ==== */
     coins: 100.00,
-    category: 'all',
-    modal: '',
-    /* wingo */
-    timer: 30,
-    timeStr: '00:30',
-    winTab: 'green',
-    selectedNum: null,
     stake: 10,
+    modes:[{label:'30 sec',sec:30},{label:'1 min',sec:60},{label:'3 min',sec:180},{label:'5 min',sec:300}],
+    mode:{label:'30 sec',sec:30},
+    timer:30,
+    timeStr:'00:30',
+    betSelection:{type:null,value:null}, // type: 'number' | 'color' | 'size'
+    currentBet:null,
+    modal:'',
 
     /* ==== METHODS ==== */
-    init(){
-      /* countdown */
-      setInterval(()=>{
-        if(this.timer>0){this.timer--;}
-        else{this.resolveRound();this.timer=30;}
-        this.timeStr = '00:'+String(this.timer).padStart(2,'0');
-      },1000);
-    },
-    ballClass(n){
-      const color = [0,2,4,6,8].includes(n)?'green':'red';
-      return color==='green'?'bg-green-100 text-green-700':'bg-red-100 text-red-700';
-    },
-    selectNumber(n){this.selectedNum=n;},
+    init(){this.startInterval();},
+    setMode(m){this.mode=m;this.timer=m.sec;},
+    startInterval(){setInterval(()=>{if(this.timer>0){this.timer--;}else{this.resolveRound();this.timer=this.mode.sec;}this.timeStr=this.format(this.timer);},1000)},
+    format(s){const m=Math.floor(s/60);const sec=s%60;return (m?m.toString().padStart(2,'0'):'00')+':'+sec.toString().padStart(2,'0');},
+    ballClass(n){const color=[0,2,4,6,8].includes(n)?'green':'red';return color==='green'? 'bg-green-100 text-green-700':'bg-red-100 text-red-700';},
+    chooseNumber(n){this.betSelection={type:'number',value:n};},
+    chooseColor(c){this.betSelection={type:'color',value:c};},
+    chooseSize(sz){this.betSelection={type:'size',value:sz};},
+    betLabel(){if(!this.betSelection.type)return '—';if(this.betSelection.type==='number')return 'Number '+this.betSelection.value; if(this.betSelection.type==='color')return this.betSelection.value; if(this.betSelection.type==='size')return this.betSelection.value.toUpperCase();},
     placeBet(){
-      if(this.selectedNum===null){alert('Select a number first');return;}
-      if(this.stake<=0 || isNaN(this.stake)){alert('Enter valid stake');return;}
+      if(!this.betSelection.type){alert('Select a bet first');return;}
+      if(this.stake<=0||isNaN(this.stake)){alert('Enter valid stake');return;}
       if(this.stake>this.coins){alert('Not enough coins');return;}
-      /* store bet – simple client array in demo */
-      this.coins-=this.stake;
-      this.currentBet={num:this.selectedNum,stake:this.stake};
-      alert('Bet placed! Wait for result…');
-    },
+      this.coins-=this.stake;this.currentBet={...this.betSelection,stake:this.stake};alert('Bet placed!');},
     resolveRound(){
       const result=Math.floor(Math.random()*10);
       const color=[0,2,4,6,8].includes(result)?'green':'red';
       const isViolet=[0,5].includes(result);
+      const size=result<5?'small':'big';
       let win=0;
-      if(this.currentBet && this.currentBet.num===result){
-        win=this.currentBet.stake*9; // 9x payout for exact number
-      }else if(this.currentBet && this.winTab===color){
-        win=this.currentBet.stake*1.9; // color payout
+      if(this.currentBet){
+        if(this.currentBet.type==='number' && this.currentBet.value===result){win=this.currentBet.stake*9;}
+        else if(this.currentBet.type==='color' && this.currentBet.value===color){win=this.currentBet.stake*1.9;}
+        else if(this.currentBet.type==='color' && this.currentBet.value==='violet' && isViolet){win=this.currentBet.stake*4;}
+        else if(this.currentBet.type==='size' && this.currentBet.value===size){win=this.currentBet.stake*2;}
       }
-      this.coins+=win;
-      alert(`Result: ${result} (${color}${isViolet?' / violet':''})\nYou won Rs ${win.toFixed(2)}`);
-<!--
-  Fantasy Gems – Color Prediction / Aviator web-game (re-v2)
-  --------------------------------------------------------
-  Changes requested on 2025-06-23:
-    • Prediction layout:   Green Red  (top)  |  Violet (mid) |  Big Small (bottom)
-    • Number buttons must be perfect circles, not squares.
-    • Aviator category shown first by default.
-    • Still single-file, no build step – Tailwind CDN + Alpine.js.
-  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------‎
+      this.coins+=win;alert(`Result: ${result} (${color}${isViolet?' / violet':''})\nYou won Rs ${win.toFixed(2)}`);
+      this.currentBet=null;this.betSelection={type:null,value:null};
+      recordResult(result,color,isViolet);
+    },
+    deposit(){alert('Call Easypaisa / JazzCash API here');},
+    withdraw(){alert('Withdraw via API');}
+  }
+}
+/* stub – replace with your analytics / backend call */
+function recordResult(num,col,vio){console.log('Result',num,col,vio)}
+</script><style>
+  .tab{ @apply py-2 rounded-lg bg-gray-100; }
+  .tab.sel{ @apply bg-emerald-600 text-white; }
+  .numBall{ @apply w-full aspect-square flex items-center justify-center rounded-full text-lg font-semibold shadow; }
+  .btnGreen{ @apply w-full bg-emerald-600 text-white py-2 rounded-xl font-semibold shadow hover:bg-emerald-700; }
+  .btnRed{ @apply w-full bg-red-500 text-white py-2 rounded-xl font-semibold shadow hover:bg-red-600; }
+  .navItem{ @apply flex flex-col items-center; }
+  .navItem.active{ @apply text-emerald-600 font-semibold; }
+</style></body>
+</html>
