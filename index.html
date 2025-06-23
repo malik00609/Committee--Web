@@ -1,161 +1,183 @@
-<!--  
-  Big/Small Color Prediction Game – single‑file template (no Aviator)
-  Author: <your name here>
-
-  How to use:
-    ▸ Host this single index.html on GitHub Pages / Glitch.
-    ▸ All logic is front‑end (demo only). Replace stub functions (deposit(), withdraw(), recordResult())
-      with calls to your backend / PayFast API when ready.
-
-  Tech stack (no build step):
-    ▸ Tailwind 3 CDN  ▸ Alpine.js 3  ▸ Inter font  ▸ Heroicons SVGs
---><!DOCTYPE html><html lang="en" x-data="game()" x-init="init()" class="scroll-smooth">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Big/Small – Color Prediction</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Prediction Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: Inter, system-ui, Helvetica, Arial, sans-serif }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button { display: none }
-  </style>
+  <style>[x-cloak]{display:none}</style>
 </head>
-<body class="bg-gray-100 text-gray-800" x-cloak>
-  <!-- ╔════ HEADER ════╗ -->
-  <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 flex items-center justify-between shadow-md">
-    <div class="flex items-center space-x-2">
-      <h1 class="text-lg font-semibold">Big / Small Game</h1>
-    </div>
-    <div class="flex items-center space-x-3">
-      <div class="text-xs text-right">
-        <p class="leading-none opacity-80">Balance</p>
-        <p class="font-semibold">Rs <span x-text="coins.toFixed(2)"></span></p>
+<body class="bg-gray-100 text-gray-900" x-data="game()" x-init="init()" x-cloak>  <!-- Header -->  <header class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-4 text-center text-xl font-bold">
+    🎯 Color Prediction Game
+  </header>  <!-- Balance and Actions -->  <div class="p-4">
+    <div class="bg-white rounded-xl shadow p-4 mb-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-sm text-gray-600">Wallet Balance</p>
+          <p class="text-2xl font-bold">Rs <span x-text="coins"></span></p>
+        </div>
+        <div class="space-x-2">
+          <button class="bg-green-600 text-white px-4 py-1 rounded" @click="openDeposit()">Deposit</button>
+          <button class="bg-red-500 text-white px-4 py-1 rounded" @click="withdraw()">Withdraw</button>
+        </div>
       </div>
-      <button @click="modal='wallet'" class="p-2 rounded-full hover:bg-white/10">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m0-4h3m-3 0l-3 3m3-3l-3-3" />
-        </svg>
-      </button>
-    </div>
-  </header>  <!-- ╔════ BANNER ════╗ -->  <section class="p-4">
-    <img src="https://placehold.co/600x170/059669/ffffff?text=Lucky+10+Days+of+Interest" alt="Promo" class="rounded-2xl w-full object-cover shadow" />
-  </section>  <!-- ╔════ MODE SELECT ════╗ -->  <section class="px-4 mb-4">
-    <div class="flex space-x-2 overflow-x-auto pb-1">
-      <template x-for="m in modes" :key="m.sec">
-        <button @click="setMode(m)" :class="mode.sec===m.sec?'bg-emerald-600 text-white':'bg-gray-200 text-gray-800'" class="shrink-0 px-3 py-1 rounded-full text-sm font-medium"> <span x-text="m.label"></span> </button>
-      </template>
-    </div>
-  </section>  <!-- ╔════ GAME PANEL ════╗ -->  <section class="bg-white rounded-t-3xl shadow-inner p-4" id="wingo">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="font-semibold text-lg" x-text="'Wingo '+mode.label"></h2>
-      <div class="text-sm text-gray-600">Time remaining: <span class="font-semibold" x-text="timeStr"></span></div>
-    </div><!-- Color tabs -->
-<div class="grid grid-cols-3 gap-2 mb-4 text-center text-sm font-medium">
-  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='green'}" @click="chooseColor('green')">Green</button>
-  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='violet'}" @click="chooseColor('violet')">Violet</button>
-  <button class="tab" :class="{sel:betSelection.type==='color' && betSelection.value==='red'}" @click="chooseColor('red')">Red</button>
-</div>
-
-<!-- Number balls -->
-<div class="grid grid-cols-5 gap-2 mb-4">
-  <template x-for="n in 10" :key="n">
-    <button class="numBall" :class="ballClass(n-1)" @click="chooseNumber(n-1)"><span x-text="n-1"></span></button>
+    </div><!-- Game Modes -->
+<div class="flex space-x-2 overflow-x-auto mb-4">
+  <template x-for="m in modes" :key="m.sec">
+    <button @click="setMode(m)" :class="mode.sec===m.sec ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800'" class="px-3 py-1 rounded-full text-sm font-medium"> <span x-text="m.label"></span> </button>
   </template>
 </div>
 
-<!-- Big/Small buttons -->
-<div class="grid grid-cols-2 gap-2 mb-4 text-center text-sm font-medium">
-  <button class="tab" :class="{sel:betSelection.type==='size' && betSelection.value==='small'}" @click="chooseSize('small')">Small (0‑4)</button>
-  <button class="tab" :class="{sel:betSelection.type==='size' && betSelection.value==='big'}" @click="chooseSize('big')">Big (5‑9)</button>
+<!-- Timer -->
+<div class="text-center text-lg font-semibold mb-3">⏳ Time Left: <span x-text="timeStr"></span></div>
+
+<!-- Color Tabs -->
+<div class="grid grid-cols-3 gap-2 mb-4 text-center font-semibold">
+  <button class="bg-green-100 rounded py-2" @click="choose('color','green')">Green</button>
+  <button class="bg-purple-200 rounded py-2" @click="choose('color','violet')">Violet</button>
+  <button class="bg-red-100 rounded py-2" @click="choose('color','red')">Red</button>
 </div>
 
-<!-- Bet panel -->
-<div class="bg-gray-50 p-4 rounded-xl shadow-inner">
-  <p class="text-sm mb-1">Your Bet: <span class="font-semibold" x-text="betLabel()"></span></p>
-  <label class="block text-sm mb-1">Stake (coins):</label>
-  <input type="number" min="1" x-model.number="stake" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring" placeholder="e.g. 10" />
-  <button class="w-full mt-3 bg-emerald-600 text-white py-2 rounded-xl font-semibold shadow-lg hover:bg-emerald-700 active:scale-95 transition" @click="placeBet()">Place Bet</button>
+<!-- Numbers -->
+<div class="grid grid-cols-5 gap-3 mb-4">
+  <template x-for="n in 10" :key="n">
+    <button class="rounded-full text-white font-bold aspect-square flex items-center justify-center shadow ring-2" :class="n < 5 ? 'bg-green-500 ring-green-700' : 'bg-red-500 ring-red-700'" @click="choose('number',n)"><span x-text="n"></span></button>
+  </template>
 </div>
 
-  </section>  <!-- ╔════ BOTTOM NAV (dummy) ════╗ -->  <nav class="fixed bottom-0 inset-x-0 bg-white border-t shadow z-50">
-    <div class="flex justify-around py-2 text-xs font-medium">
-      <div class="navItem active">Home</div>
-      <div class="navItem">Activity</div>
-      <div class="navItem">Wallet</div>
-      <div class="navItem">Account</div>
-    </div>
-  </nav>  <!-- ╔════ WALLET MODAL ════╗ -->  <template x-if="modal==='wallet'">
-    <div class="fixed inset-0 bg-black/40 flex items-end" @click.self="modal=''">
-      <div class="bg-white w-full rounded-t-2xl p-6 space-y-4">
-        <h3 class="font-semibold text-lg">Wallet</h3>
-        <button class="btnGreen" @click="deposit()">Deposit (Easypaisa / JazzCash)</button>
-        <button class="btnRed" @click="withdraw()">Withdraw</button>
-        <button class="w-full text-center text-gray-500 mt-2" @click="modal=''">Close</button>
+<!-- Big/Small -->
+<div class="grid grid-cols-2 gap-2 mb-4">
+  <button class="bg-gray-200 py-2 rounded" @click="choose('size','small')">Small (0–4)</button>
+  <button class="bg-gray-300 py-2 rounded" @click="choose('size','big')">Big (5–9)</button>
+</div>
+
+<!-- Bet Panel -->
+<div class="bg-white p-4 rounded-xl shadow">
+  <p class="text-sm mb-1">Your Bet: <span class="font-bold" x-text="betLabel"></span></p>
+  <input type="number" x-model.number="stake" class="w-full border px-3 py-2 rounded mb-3" placeholder="Enter amount (Rs)" />
+  <button class="w-full bg-green-600 text-white py-2 rounded font-semibold" @click="placeBet">Place Bet</button>
+</div>
+
+  </div>  <!-- Deposit Modal -->  <div x-show="showDeposit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-5 rounded-xl w-[90%] max-w-md">
+      <h2 class="text-lg font-semibold mb-3">Deposit via</h2>
+      <div class="space-y-3">
+        <div class="border rounded p-3 flex justify-between items-center">
+          <div>
+            <p class="text-sm font-medium">EasyPaisa</p>
+            <p class="text-sm text-gray-600">03319535871</p>
+          </div>
+          <button class="text-xs text-blue-600" @click="copyToClipboard('03319535871')">📋 Copy</button>
+        </div>
+        <div class="border rounded p-3 flex justify-between items-center">
+          <div>
+            <p class="text-sm font-medium">JazzCash</p>
+            <p class="text-sm text-gray-600">03159676813</p>
+          </div>
+          <button class="text-xs text-blue-600" @click="copyToClipboard('03159676813')">📋 Copy</button>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="text-sm">Enter Transaction ID</label>
+        <input type="text" x-model="txnId" placeholder="e.g. TXP1234567" class="w-full border rounded px-3 py-2 mt-1" />
+        <button @click="submitTxn" class="mt-3 w-full bg-green-600 text-white py-2 rounded font-semibold">Submit</button>
+        <button class="mt-2 text-sm text-red-500" @click="showDeposit = false">Cancel</button>
       </div>
     </div>
-  </template><script>
-function game(){
+  </div><script>
+function game() {
   return {
-    /* ==== STATE ==== */
-    coins: 100.00,
+    coins: 100,
     stake: 10,
-    modes:[{label:'30 sec',sec:30},{label:'1 min',sec:60},{label:'3 min',sec:180},{label:'5 min',sec:300}],
-    mode:{label:'30 sec',sec:30},
-    timer:30,
-    timeStr:'00:30',
-    betSelection:{type:null,value:null}, // type: 'number' | 'color' | 'size'
-    currentBet:null,
-    modal:'',
+    modes: [
+      { label: '30 sec', sec: 30 },
+      { label: '1 min', sec: 60 },
+      { label: '3 min', sec: 180 },
+      { label: '5 min', sec: 300 },
+    ],
+    mode: { label: '30 sec', sec: 30 },
+    timer: 30,
+    timeStr: '00:30',
+    bet: { type: null, value: null },
+    currentBet: null,
+    showDeposit: false,
+    txnId: '',
 
-    /* ==== METHODS ==== */
-    init(){this.startInterval();},
-    setMode(m){this.mode=m;this.timer=m.sec;},
-    startInterval(){setInterval(()=>{if(this.timer>0){this.timer--;}else{this.resolveRound();this.timer=this.mode.sec;}this.timeStr=this.format(this.timer);},1000)},
-    format(s){const m=Math.floor(s/60);const sec=s%60;return (m?m.toString().padStart(2,'0'):'00')+':'+sec.toString().padStart(2,'0');},
-    ballClass(n){const color=[0,2,4,6,8].includes(n)?'green':'red';return color==='green'? 'bg-green-100 text-green-700':'bg-red-100 text-red-700';},
-    chooseNumber(n){this.betSelection={type:'number',value:n};},
-    chooseColor(c){this.betSelection={type:'color',value:c};},
-    chooseSize(sz){this.betSelection={type:'size',value:sz};},
-    betLabel(){if(!this.betSelection.type)return '—';if(this.betSelection.type==='number')return 'Number '+this.betSelection.value; if(this.betSelection.type==='color')return this.betSelection.value; if(this.betSelection.type==='size')return this.betSelection.value.toUpperCase();},
-    placeBet(){
-      if(!this.betSelection.type){alert('Select a bet first');return;}
-      if(this.stake<=0||isNaN(this.stake)){alert('Enter valid stake');return;}
-      if(this.stake>this.coins){alert('Not enough coins');return;}
-      this.coins-=this.stake;this.currentBet={...this.betSelection,stake:this.stake};alert('Bet placed!');},
-    resolveRound(){
-      const result=Math.floor(Math.random()*10);
-      const color=[0,2,4,6,8].includes(result)?'green':'red';
-      const isViolet=[0,5].includes(result);
-      const size=result<5?'small':'big';
-      let win=0;
-      if(this.currentBet){
-        if(this.currentBet.type==='number' && this.currentBet.value===result){win=this.currentBet.stake*9;}
-        else if(this.currentBet.type==='color' && this.currentBet.value===color){win=this.currentBet.stake*1.9;}
-        else if(this.currentBet.type==='color' && this.currentBet.value==='violet' && isViolet){win=this.currentBet.stake*4;}
-        else if(this.currentBet.type==='size' && this.currentBet.value===size){win=this.currentBet.stake*2;}
-      }
-      this.coins+=win;alert(`Result: ${result} (${color}${isViolet?' / violet':''})\nYou won Rs ${win.toFixed(2)}`);
-      this.currentBet=null;this.betSelection={type:null,value:null};
-      recordResult(result,color,isViolet);
+    init() {
+      setInterval(() => {
+        if (this.timer > 0) {
+          this.timer--;
+          this.timeStr = this.fmt(this.timer);
+        } else {
+          this.resolve();
+        }
+      }, 1000);
     },
-    deposit(){alert('Call Easypaisa / JazzCash API here');},
-    withdraw(){alert('Withdraw via API');}
+
+    fmt(s) {
+      const m = Math.floor(s / 60), sec = s % 60;
+      return (m ? String(m).padStart(2, '0') : '00') + ':' + String(sec).padStart(2, '0');
+    },
+
+    setMode(m) {
+      this.mode = m;
+      this.timer = m.sec;
+    },
+
+    choose(t, v) {
+      this.bet = { type: t, value: v };
+    },
+
+    betLabel() {
+      if (!this.bet.type) return '—';
+      return this.bet.type === 'number' ? `Number ${this.bet.value}` : this.bet.value.toUpperCase();
+    },
+
+    placeBet() {
+      if (!this.bet.type || !this.stake || this.stake > this.coins) return alert('Invalid bet');
+      this.coins -= this.stake;
+      this.currentBet = { ...this.bet, stake: this.stake };
+      alert('Bet Placed');
+    },
+
+    resolve() {
+      const res = Math.floor(Math.random() * 10);
+      const color = [0, 2, 4, 6, 8].includes(res) ? 'green' : 'red';
+      const vio = [0, 5].includes(res);
+      const size = res < 5 ? 'small' : 'big';
+      let win = 0;
+      if (this.currentBet) {
+        const { type, value, stake } = this.currentBet;
+        if (type === 'number' && value === res) win = stake * 9;
+        else if (type === 'color' && value === color) win = stake * 1.9;
+        else if (type === 'color' && value === 'violet' && vio) win = stake * 4;
+        else if (type === 'size' && value === size) win = stake * 2;
+      }
+      this.coins += win;
+      alert(`Result: ${res} (${color}${vio ? '/violet' : ''})\nWin: Rs ${win}`);
+      this.timer = this.mode.sec;
+      this.bet = { type: null, value: null };
+      this.currentBet = null;
+    },
+
+    openDeposit() {
+      this.showDeposit = true;
+    },
+
+    copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert('Number copied!');
+    },
+
+    submitTxn() {
+      if (!this.txnId) return alert('Please enter Transaction ID');
+      const ref = localStorage.getItem('ref_by') || 'direct';
+      const msg = `New Deposit Request:\nTxn: ${this.txnId}\nRef: ${ref}`;
+      alert(msg); // You can send this to Telegram or Email via external tool
+      this.txnId = '';
+      this.showDeposit = false;
+    }
   }
 }
-/* stub – replace with your analytics / backend call */
-function recordResult(num,col,vio){console.log('Result',num,col,vio)}
-</script><style>
-  .tab{ @apply py-2 rounded-lg bg-gray-100; }
-  .tab.sel{ @apply bg-emerald-600 text-white; }
-  .numBall{ @apply w-full aspect-square flex items-center justify-center rounded-full text-lg font-semibold shadow; }
-  .btnGreen{ @apply w-full bg-emerald-600 text-white py-2 rounded-xl font-semibold shadow hover:bg-emerald-700; }
-  .btnRed{ @apply w-full bg-red-500 text-white py-2 rounded-xl font-semibold shadow hover:bg-red-600; }
-  .navItem{ @apply flex flex-col items-center; }
-  .navItem.active{ @apply text-emerald-600 font-semibold; }
-</style></body>
+</script></body>
 </html>
