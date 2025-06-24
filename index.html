@@ -3,124 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register | FANTASY+</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <title>Color Trading</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .container {
-      background: #111;
-      padding: 30px 25px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 380px;
-      box-shadow: 0 0 20px rgba(0, 255, 200, 0.1);
-      text-align: center;
-    }
-    h2 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      font-weight: 700;
-      color: #00ffc8;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      background: #222;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       color: white;
+      text-align: center;
+      padding: 20px;
     }
-    input:focus {
-      outline: 2px solid #00ffc8;
+    nav {
+      background: black;
+      padding: 10px 0;
     }
-    button {
-      background: #00ffc8;
-      color: #000;
-      padding: 12px;
-      width: 100%;
-      font-size: 17px;
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
       font-weight: bold;
+    }
+    h1 {
+      margin: 30px 0 10px;
+    }
+    .timer-buttons button {
+      background: dodgerblue;
+      color: white;
+      padding: 12px 20px;
+      margin: 10px;
       border: none;
-      border-radius: 8px;
-      margin-top: 10px;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
     }
-    .link {
-      margin-top: 16px;
-      font-size: 14px;
+    .timer-buttons button.active {
+      background: limegreen;
     }
-    .link a {
-      color: #00ffc8;
+    .input-section {
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      width: 150px;
+    }
+    .result-button {
+      background: green;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    .result-text {
+      margin-top: 30px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ff7f;
+    }
+    .links {
+      margin-top: 40px;
+    }
+    .links a {
+      display: block;
+      background: #00c851;
+      margin: 10px auto;
+      padding: 12px 20px;
+      width: 250px;
+      border-radius: 10px;
       text-decoration: none;
+      color: white;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Create Account</h2>
-    <input type="text" id="mobile" placeholder="Mobile Number (e.g. 03123456789)" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="register()">Register</button>
-    <div class="link">
-      Already have an account? <a href="login.html">Login here</a>
-    </div>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Color Trading</a>
+    <a href="#">Results</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <h1>Color Trading</h1>
+
+  <div class="timer-buttons">
+    <button onclick="selectTime(this)">30 Seconds</button>
+    <button onclick="selectTime(this)">1 Minute</button>
+    <button onclick="selectTime(this)">3 Minutes</button>
+    <button onclick="selectTime(this)">5 Minutes</button>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <div class="input-section">
+    <input type="text" id="codeInput" placeholder="Enter Code" />
+    <button class="result-button" onclick="showResult()">Show Result</button>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "YOUR_APP_ID",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com"
-    };
+  <div class="result-text" id="resultDisplay"></div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+  <div class="links">
+    <a href="https://www.fantasygems10.com/#/register?invitationCode=22386407377" target="_blank">🎮 Play FANTASY+</a>
+    <a href="https://whatsapp.com/channel/0029VbB00RE5fM5SO0umup1H" target="_blank">📲 Join WhatsApp Channel</a>
+  </div>
 
-    function register() {
-      const mobile = document.getElementById("mobile").value;
-      const password = document.getElementById("password").value;
-      if (!mobile || !password) {
-        alert("Please fill in all fields");
-        return;
-      }
-      const fakeEmail = mobile + "@fantasyplus.com";
-      createUserWithEmailAndPassword(auth, fakeEmail, password)
-        .then((userCredential) => {
-          const uid = userCredential.user.uid;
-          set(ref(db, 'users/' + uid), {
-            mobile: mobile,
-            wallet: 0,
-            role: "user"
-          });
-          alert("Registration successful!");
-          window.location.href = "login.html";
-        })
-        .catch((error) => {
-          alert("Error: " + error.message);
-        });
+  <script>
+    let currentSelection = null;
+
+    // ✅ Updated BIG/SMALL pattern from your message
+    const fixedPattern = [
+      "BIG", "SMALL", "BIG", "BIG", "BIG", "SMALL", "SMALL",
+      "BIG", "SMALL", "BIG", "BIG", "SMALL", "BIG", "SMALL",
+      "BIG", "BIG", "BIG", "SMALL", "BIG", "SMALL", "SMALL",
+      "SMALL", "SMALL", "BIG", "BIG", "SMALL", "BIG", "SMALL",
+      "BIG", "SMALL", "BIG", "SMALL"
+    ];
+
+    // ✅ RED/GREEN pattern
+    const colorPattern = [
+      "RED", "GREEN", "GREEN", "RED", "RED", "GREEN", "RED",
+      "GREEN", "RED", "RED", "GREEN", "GREEN", "RED", "RED",
+      "GREEN", "GREEN", "RED", "GREEN", "RED", "RED", "GREEN",
+      "RED", "GREEN", "RED", "GREEN", "RED", "GREEN", "RED",
+      "GREEN", "RED", "RED", "GREEN"
+    ];
+
+    let patternIndex = 0;
+
+    function selectTime(btn) {
+      document.querySelectorAll('.timer-buttons button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSelection = btn.textContent;
     }
 
-    window.register = register;
+    function showResult() {
+      if (!currentSelection) {
+        alert("Please select a time first.");
+        return;
+      }
+
+      const bsResult = fixedPattern[patternIndex % fixedPattern.length];
+      const colorResult = colorPattern[patternIndex % colorPattern.length];
+
+      document.getElementById("resultDisplay").textContent = `✅ Result: ${bsResult} | ${colorResult}`;
+
+      patternIndex++;
+    }
   </script>
 </body>
 </html>
